@@ -214,7 +214,19 @@ export default {
       /**
        * secret key (btoa'd) from the firebase server, in case the widget is locked.
        */
-      serverSecret: ""
+      serverSecret: "",
+      /**
+       * If rulesSequence is configured, keeps track of current rule
+       */
+      currentRuleIndex: 0,
+      /**
+       * If rulesSequence is configured, keeps track of all stimuli id seen in current series
+       */
+      seenInSeries: [],
+      /**
+       * If rulesSequence is configured, keeps track of all stimuli id seen since play began
+       */
+      seenSinceStart: []
     };
   },
   watch: {
@@ -287,6 +299,20 @@ export default {
       return this.config.widgetProperties;
     },
     /**
+     * Provides the ability to configure the game as a set of series,
+     * where each series has a configurable number of stimuli and decides
+     * the next stimuli by a given rule.
+     */
+    rulesSequence() {
+      return this.config.rulesSequence;
+    },
+    /**
+     * If rulesSequence is configured, returns the current rule (filter) function
+     */
+    currentRule() {
+      return this.rulesSequence[this.currentRuleIndex].rule;
+    },
+    /**
      * whether or not the widget requires a secret (for locking down data)
      */
     needsSecret() {
@@ -339,7 +365,9 @@ export default {
           this.noData = true;
         } else {
           this.startTime = new Date();
-          this.setNextSampleId();
+          this.rulesSequence
+            ? this.setNextSampleIdByRule()
+            : this.setNextSampleId();
         }
       });
     },
@@ -467,20 +495,70 @@ export default {
       this.updateSeen();
 
       // 4. set the next Sample
-      this.setNextSampleId();
+      this.rulesSequence
+        ? this.setNextSampleIdByRule(response, timeDiff)
+        : this.setNextSampleId();
     },
     /**
      * method to get the next sample id to show in the widget
-     * view time gets reset first, then the new sample is found and set.
      */
     setNextSampleId() {
-      this.startTime = new Date();
-
-      const sampleId = this.sampleUserPriority()[0];
+      const sample = this.sampleUserPriority()[0];
 
       // if sampleId isn't null, set the widgetPointer
+      if (sample) {
+        this.widgetPointer = sample[".key"];
+      }
+    },
+    /**
+     * method to get the next sample id to show in the widget
+     * by filtering by configured rule
+     */
+    setNextSampleIdByRule(response, timeDiff) {
+      const params = {
+        userData: this.userData,
+        lastStimulus: {
+          widgetPointer: this.widgetPointer,
+          widgetSummary: this.widgetSummary,
+          response,
+          timeDiff
+        },
+        currentGame: {
+          seenSinceStart: this.seenSinceStart,
+          seenInSeries: this.seenInSeries
+        },
+        allGames: {
+          samplesAndCounts: this.sampleCounts,
+          userSeenSamples: this.userSeenSamples
+        }
+      };
+
+      const sampleId = this.currentRule(params);
+      console.log(params);
+      // if sampleId isn't null, set the widgetPointer
       if (sampleId) {
-        this.widgetPointer = sampleId[".key"];
+        this.widgetPointer = sampleId;
+      }
+
+      this.trackRuleProgress(this.widgetPointer);
+    },
+    /**
+     *
+     */
+    trackRuleProgress(sampleId) {
+      this.seenInSeries.push(sampleId);
+      this.seenSinceStart.push(sampleId);
+
+      // move to the next rule and clear series tracker
+      // if enough trials have been seen
+      const { numTrials } = this.rulesSequence[this.currentRuleIndex];
+      if (this.seenInSeries.length >= numTrials) {
+        this.currentRuleIndex++;
+        // move back to the first rule if last rule is passed
+        if (this.currentRuleIndex >= this.rulesSequence.length) {
+          this.currentRuleIndex = 0;
+        }
+        this.seenInSeries = [];
       }
     },
     /**
@@ -575,3 +653,5 @@ export default {
   }
 };
 </script>
+
+https://github.com/yeatmanlab/SwipesForScience
