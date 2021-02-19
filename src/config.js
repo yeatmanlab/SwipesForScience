@@ -1,3 +1,9 @@
+import {
+  completelyRandomRule,
+  specificOrderRule,
+  prioritizeByViewsRule
+} from "./rules";
+
 export default {
   // if set to true, the user will be routed to /tutorial instead of /play if
   // they haven't taken a tutorial
@@ -8,6 +14,8 @@ export default {
   manifestUrl:
     "https://raw.githubusercontent.com/SwipesForScience/exampleConfig/master/bsHbnManifest.json",
   manifestType: "json",
+  stimParamsUrl:
+    "https://raw.githubusercontent.com/jyeatman/SwipesForScience/master/data/stimparams.csv",
   widgetType: "TimedImageSwipe", // 'EvalNHA',
   widgetUsesSecret: false,
   widgetProperties: {
@@ -30,6 +38,25 @@ export default {
     }
   },
 
+  // sequence of series configured by "rules",
+  // which are functions that determine stimuli order
+  rulesSequence: [
+    {
+      name: "random_sequence",
+      numTrials: 5,
+      rule: completelyRandomRule
+    },
+    {
+      name: "specific_order",
+      numTrials: 4,
+      rule: specificOrderRule
+    },
+    {
+      name: "default_swipes_for_science",
+      numTrials: 10,
+      rule: prioritizeByViewsRule
+    }
+  ],
   // if manifestType = 'pubmed' then you should also include a manifestQuery key.
   // if manifestType = 'json' then you're fine
   // if manifestType = 'github' then you need to provide a github user, repo,
@@ -291,6 +318,14 @@ export default {
     storageBucket: "swipesforsciencedev1.appspot.com",
     messagingSenderId: "380364880642"
   },
+  // firebaseKeys: {
+  //   apiKey: "AIzaSyDXo2qhW99W6PnTj733onvXGl7JWG1t4_I",
+  //   authDomain: "ldt-test.firebaseapp.com",
+  //   databaseURL: "https://ldt-test-default-rtdb.firebaseio.com",
+  //   projectId: "ldt-test",
+  //   storageBucket: "ldt-test.appspot.com",
+  //   messagingSenderId: "805367610409",
+  // },
 
   app: {
     navbarVariant: "info"
