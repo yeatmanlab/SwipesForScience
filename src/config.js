@@ -23,9 +23,10 @@ export default {
       value: 1
     },
     timing: {
-      stimulusDuration: 10_000,
+      stimulusDuration: 2_000,
+      votingDuration: 5_000,
       timeoutValue: 0,
-      interStimuliDuration: 2000,
+      interStimuliDuration: 5000,
       stimulusFadeIn: false
     }
   },
@@ -309,7 +310,11 @@ export default {
   // Play configuration
   play: {
     blankImage:
-      "https://raw.githubusercontent.com/SwipesForScience/testConfig/master/images/undraw_blank_canvas.svg?sanitize=true"
+      "https://raw.githubusercontent.com/SwipesForScience/testConfig/master/images/undraw_blank_canvas.svg?sanitize=true",
+    votingImage:
+      "https://image.shutterstock.com/image-vector/vote-box-icon-260nw-295645238.jpg",
+    interStimuliImage:
+      "https://image.freepik.com/free-vector/get-ready-neon-signs-style-text_118419-1315.jpg"
   },
 
   // Chats configuration
