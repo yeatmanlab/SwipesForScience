@@ -28,7 +28,9 @@ export const completelyRandomRule = ({
     // swipe value (set in `config.widgetProperties`)
     response,
     // time elapsed between image load and user swipe
-    timeDiff
+    timeDiff,
+    // the stimParams object (if any)
+    params
   },
   // data specific to the current game (starting from user clicking "Play Now" button)
   currentGame: {
@@ -44,8 +46,7 @@ export const completelyRandomRule = ({
     // tracks `.val` (number of views by this user) for each `.key` (stimulus id)
     userSeenSamples
   },
-  // not yet in database.
-  // TODO: set up configuration and import stimParams.csv to firebase
+  // a dict of stimParams (keys are `imagenames`)
   stimParams
   /* eslint-enable no-unused-vars */
 }) => {

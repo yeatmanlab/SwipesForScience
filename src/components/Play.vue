@@ -103,6 +103,8 @@ import _ from "lodash";
 import Vue from "vue";
 import WidgetSelector from "./WidgetSelector";
 import Flask from "./Animations/Flask";
+import axios from "axios";
+import csv from "papaparse";
 
 Vue.component("WidgetSelector", WidgetSelector);
 
@@ -226,7 +228,8 @@ export default {
       /**
        * If rulesSequence is configured, keeps track of all stimuli id seen since play began
        */
-      seenSinceStart: []
+      seenSinceStart: [],
+      stimParams: {}
     };
   },
   watch: {
@@ -268,6 +271,7 @@ export default {
     this.initSeenSamples();
     this.initUserSettings();
     this.fetchServerSecret();
+    this.initStimParams();
   },
   components: {
     // WidgetSelector,
@@ -325,7 +329,6 @@ export default {
      * this property saves the state of the widget, if it needs it.
      */
     initUserSettings() {
-      // console.log('updating user settings');
       this.db
         .ref("userSettings")
         .child(this.userInfo.displayName)
@@ -376,7 +379,6 @@ export default {
      * `/userSeenSamples/<username>` document from firebase, once.
      */
     initSeenSamples() {
-      // console.log('userSeenSamples', this.userInfo.displayName);
       this.db
         .ref("userSeenSamples")
         .child(this.userInfo.displayName)
@@ -387,6 +389,19 @@ export default {
             });
             /* eslint-enable */
         });
+    },
+    initStimParams() {
+      axios.get(this.config.stimParamsUrl).then(({ data }) => {
+        // resp.data has a list of firebase-friendly strings
+        const stimParamsList = csv.parse(data, {
+          header: true,
+          dynamicTyping: true
+        }).data;
+        stimParamsList.forEach(params => {
+          this.stimParams[params.imagename] = params;
+          delete params.imagename;
+        });
+      });
     },
     /**
      * A method to shuffle an array.
@@ -521,7 +536,8 @@ export default {
           widgetPointer: this.widgetPointer,
           widgetSummary: this.widgetSummary,
           response,
-          timeDiff
+          timeDiff,
+          params: this.stimParams[this.widgetPointer]
         },
         currentGame: {
           seenSinceStart: this.seenSinceStart,
@@ -530,11 +546,11 @@ export default {
         allGames: {
           samplesAndCounts: this.sampleCounts,
           userSeenSamples: this.userSeenSamples
-        }
+        },
+        stimParams: this.stimParams
       };
 
       const sampleId = this.currentRule(params);
-      console.log(params);
       // if sampleId isn't null, set the widgetPointer
       if (sampleId) {
         this.widgetPointer = sampleId;
