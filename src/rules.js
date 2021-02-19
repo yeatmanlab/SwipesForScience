@@ -43,7 +43,10 @@ export const completelyRandomRule = ({
     samplesAndCounts,
     // tracks `.val` (number of views by this user) for each `.key` (stimulus id)
     userSeenSamples
-  }
+  },
+  // not yet in database.
+  // TODO: set up configuration and import stimParams.csv to firebase
+  stimParams
   /* eslint-enable no-unused-vars */
 }) => {
   const randIndex = Math.floor(Math.random() * samplesAndCounts.length);
