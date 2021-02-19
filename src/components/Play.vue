@@ -40,6 +40,8 @@
           :widgetPointer="widgetPointer"
           :widgetProperties="widgetProperties"
           :widgetSummary="widgetSummary"
+          :votingImage="votingImage"
+          :interStimuliImage="interStimuliImage"
           :userSettings="userSettings"
           :needsSecret="needsSecret"
           :serverSecret="serverSecret"
@@ -289,6 +291,18 @@ export default {
      */
     blankImage() {
       return this.config.play.blankImage;
+    },
+    /**
+     * for TimedImageSwipe widget
+     */
+    votingImage() {
+      return this.config.play.votingImage;
+    },
+    /**
+     * for TimedImageSwipe widget
+     */
+    interStimuliImage() {
+      return this.config.play.interStimuliImage;
     },
     /**
      * type of widget, named exactly how it is in the Widgets folder
